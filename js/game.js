@@ -8,14 +8,14 @@ TopDownGame.Game.prototype = {
 		this.map.addTilesetImage('tiles2', 'gameTiles');
 
 
-		this.backgroundlayer = this.map.createLayer('backgroundLayer');
-		this.blocklayer = this.map.createLayer('blockLayer')
+		this.backgroundLayer = this.map.createLayer('backgroundLayer');
+		this.blockLayer = this.map.createLayer('blockLayer');
 
 		 //collision on blockedLayer
-	    this.map.setCollisionBetween(1, 2000, true, 'blockLayer');
+	    this.map.setCollisionBetween(1, 3000, true, 'blockLayer');
 	 	
 	    //resizes the game world to match the layer dimensions
-	    this.backgroundlayer.resizeWorld();
+	    this.backgroundLayer.resizeWorld();
 
 	    this.createItems();
 	    this.createDoors();
@@ -25,12 +25,6 @@ TopDownGame.Game.prototype = {
 	    this.player = this.game.add.sprite(result[0].x, result[0].y, 'player');
 	    this.game.physics.arcade.enable(this.player);
 	    this.game.camera.follow(this.player);
-	    this.cursors = this.game.input.keyboard.createCursorKeys();
-	},
-
-	update: function(){
-		this.player.body.velocity.y = 0;
-		this.player.body.velocity.x = 0;
 
 		this.wasd = {
 			up: this.game.input.keyboard.addKey(Phaser.Keyboard.W),
@@ -39,18 +33,27 @@ TopDownGame.Game.prototype = {
 			right: this.game.input.keyboard.addKey(Phaser.Keyboard.D)
 		}
 
+
+	    
+	},
+
+	update: function(){
+		this.game.physics.arcade.collide(this.player, this.blockLayer);
+		this.player.body.velocity.y = 0;
+		this.player.body.velocity.x = 0;
+
 		this.checkPlayerMovement();
 	},
 
 	checkPlayerMovement: function(){
 		if(this.wasd.up.isDown){
-			this.player.body.velocity.y = -50;
+			this.player.body.velocity.y = -100;
 		}else if(this.wasd.down.isDown){
-			this.player.body.velocity.y = 50;
+			this.player.body.velocity.y = 100;
 		}else if(this.wasd.left.isDown){
-			this.player.body.velocity.x = -50;
+			this.player.body.velocity.x = -100;
 		}else if(this.wasd.right.isDown){
-			this.player.body.velocity.x = 50;
+			this.player.body.velocity.x = 100;
 		}
 	},
 
