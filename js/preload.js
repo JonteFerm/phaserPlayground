@@ -8,6 +8,7 @@ TopDownGame.Preload.prototype = {
 		this.load.image('gameTiles', 'assets/dungeontest/images/tiles2.png');
 		//this.load.image('player', 'assets/dungeontest/images/player.png');
 		this.load.spritesheet('player', 'assets/dungeontest/images/playersprite.png', 32, 32);
+		this.load.spritesheet('cultist', 'assets/dungeontest/images/cultist.png', 32, 32);
 		this.load.image('gate', 'assets/dungeontest/images/gate.png');
 		this.load.image('goldenkey', 'assets/dungeontest/images/goldenkey.png');
 

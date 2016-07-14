@@ -5,10 +5,50 @@ TopDownGame.Game = function(){};
 
 Player = function(game, x, y){
 	Phaser.Sprite.call(this, game, x, y, 'player');
-	this.inventory = ['neger'];
+	this.inventory = [];
+
+    this.animations.add('right', [0,1], 10, true);
+	this.animations.add('left', [2,3], 10, true);
+
+	this.wasd = {
+		up: this.game.input.keyboard.addKey(Phaser.Keyboard.W),
+		down: this.game.input.keyboard.addKey(Phaser.Keyboard.S),
+		left: this.game.input.keyboard.addKey(Phaser.Keyboard.A),
+		right: this.game.input.keyboard.addKey(Phaser.Keyboard.D)
+	}
+
+	this.checkMovement = function(){
+		if(this.wasd.up.isDown){
+			this.body.velocity.y = -100;
+		}else if(this.wasd.down.isDown){
+			this.body.velocity.y = 100;
+		}else if(this.wasd.left.isDown){
+			this.body.velocity.x = -100;
+			this.animations.play("left");
+		}else if(this.wasd.right.isDown){
+			this.body.velocity.x = 100;
+			this.animations.play("right");
+		}else{
+			this.animations.stop();
+		}
+	}
 };
 
 Player.prototype = Object.create(Phaser.Sprite.prototype);
+
+Enemy = function(game, x, y, type){
+	Phaser.Sprite.call(this, game, x, y, type);
+	this.inventory = [];
+
+	this.animations.add('right', [0,1], 10, true);
+	this.animations.add('left', [2,3], 10, true);
+
+	this.makeMovement = function(playerX, playerY){
+
+	}
+}
+
+Enemy.prototype = Object.create(Phaser.Sprite.prototype);
 
 Item = function(game, x, y, sprite){
 	Phaser.Sprite.call(this, game, x, y, sprite);
@@ -28,10 +68,8 @@ TopDownGame.Game.prototype = {
 		this.backgroundLayer = this.map.createLayer('backgroundLayer');
 		this.blockLayer = this.map.createLayer('blockLayer');
 
-		 //collision on blockedLayer
 	    this.map.setCollisionBetween(1, 3000, true, 'blockLayer');
-	 	
-	    //resizes the game world to match the layer dimensions
+
 	    this.backgroundLayer.resizeWorld();
 
 	    this.createItems();
@@ -40,43 +78,30 @@ TopDownGame.Game.prototype = {
 	    var playerStart = this.findObjectsByType('playerStart', this.map, 'objectLayer')[0];
 	    this.player = new Player(this.game, playerStart.x, playerStart.y);
 	    this.game.add.existing(this.player);
-	    this.player.animations.add('right', [0,1], 10, true);
-	    this.player.animations.add('left', [2,3], 10, true);
 	    this.game.physics.arcade.enable(this.player);
 	    this.game.camera.follow(this.player);
 
-		this.wasd = {
-			up: this.game.input.keyboard.addKey(Phaser.Keyboard.W),
-			down: this.game.input.keyboard.addKey(Phaser.Keyboard.S),
-			left: this.game.input.keyboard.addKey(Phaser.Keyboard.A),
-			right: this.game.input.keyboard.addKey(Phaser.Keyboard.D)
-		}	    
+		var enemyStart = this.findObjectsByType('enemyStart', this.map, 'objectLayer')[0];
+		this.enemy = new Enemy(this.game, enemyStart.x, enemyStart.y, 'cultist');
+		this.game.add.existing(this.enemy);
+		this.game.physics.arcade.enable(this.enemy);
 	},
 
 	update: function(){
 		this.game.physics.arcade.collide(this.player, this.blockLayer);
+		this.game.physics.arcade.collide(this.player, this.enemy);
 		this.game.physics.arcade.overlap(this.player, this.items, this.pickupItem, null, this);
 		this.player.body.velocity.y = 0;
 		this.player.body.velocity.x = 0;
 
-		this.checkPlayerMovement();
+		this.player.checkMovement();
+
+		this.game.physics.arcade.collide(this.enemy, this.blockLayer);
+		this.game.physics.arcade.collide(this.enemy, this.player);
+		this.enemy.body.velocity.y = 0;
+		this.enemy.body.velocity.x = 0;
 	},
 
-	checkPlayerMovement: function(){
-		if(this.wasd.up.isDown){
-			this.player.body.velocity.y = -100;
-		}else if(this.wasd.down.isDown){
-			this.player.body.velocity.y = 100;
-		}else if(this.wasd.left.isDown){
-			this.player.body.velocity.x = -100;
-			this.player.animations.play("left");
-		}else if(this.wasd.right.isDown){
-			this.player.body.velocity.x = 100;
-			this.player.animations.play("right");
-		}else{
-			this.player.animations.stop();
-		}
-	},
 
 	pickupItem: function(player,item){
 		player.inventory.push(item.key);

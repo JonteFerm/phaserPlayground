@@ -24,7 +24,7 @@
         }, 
         {
          "draworder":"topdown",
-         "height":16,
+         "height":0,
          "name":"objectLayer",
          "objects":[
                 {
@@ -86,15 +86,35 @@
                  "width":32,
                  "x":256,
                  "y":416
+                }, 
+                {
+                 "gid":946,
+                 "height":32,
+                 "id":15,
+                 "name":"",
+                 "properties":
+                    {
+                     "sprite":"cultist"
+                    },
+                 "propertytypes":
+                    {
+                     "sprite":"string"
+                    },
+                 "rotation":0,
+                 "type":"enemyStart",
+                 "visible":true,
+                 "width":32,
+                 "x":127,
+                 "y":317
                 }],
          "opacity":1,
          "type":"objectgroup",
          "visible":true,
-         "width":16,
+         "width":0,
          "x":0,
          "y":0
         }],
- "nextobjectid":10,
+ "nextobjectid":18,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tileheight":32,
