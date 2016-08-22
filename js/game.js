@@ -18,6 +18,8 @@ Player = function(game, x, y){
 	}
 
 	this.checkMovement = function(){
+		//console.log("player X: " + this.x + " " + "player Y: " + this.y);
+
 		if(this.wasd.up.isDown){
 			this.body.velocity.y = -100;
 		}else if(this.wasd.down.isDown){
@@ -44,7 +46,32 @@ Enemy = function(game, x, y, type){
 	this.animations.add('left', [2,3], 10, true);
 
 	this.makeMovement = function(playerX, playerY){
+		//console.log("enemy X: " + this.x + " " + "enemy Y: " + this.y);
 
+
+		if((this.y > playerY + 10 || this.y < playerY - 10) || (this.x > playerX + 10 || this.x < playerX - 10)){
+			if(playerY > this.y){
+				this.body.velocity.y = 80;
+			}else if(playerY < this.y){
+				this.body.velocity.y = -80;
+			}
+
+			if(playerX > this.x){
+				this.body.velocity.x = 80;
+				this.animations.play("right");
+			}else if(playerX < this.x){
+				this.body.velocity.x = -80;
+				this.animations.play("left");
+			}
+		}else{
+			this.animations.stop();
+		}
+
+		this.checkHit = function(mouseX, mouseY){
+			if((mouseX >= this.x && mouseX < this.x + 32) && (mouseY >= this.y && mouseY < this.y + 32)){
+				return true;
+			}
+		}
 	}
 }
 
@@ -80,11 +107,14 @@ TopDownGame.Game.prototype = {
 	    this.game.add.existing(this.player);
 	    this.game.physics.arcade.enable(this.player);
 	    this.game.camera.follow(this.player);
+	    this.player.body.immovable = true;
 
 		var enemyStart = this.findObjectsByType('enemyStart', this.map, 'objectLayer')[0];
 		this.enemy = new Enemy(this.game, enemyStart.x, enemyStart.y, 'cultist');
 		this.game.add.existing(this.enemy);
 		this.game.physics.arcade.enable(this.enemy);
+		this.enemy.body.immovable = true;
+
 	},
 
 	update: function(){
@@ -100,6 +130,15 @@ TopDownGame.Game.prototype = {
 		this.game.physics.arcade.collide(this.enemy, this.player);
 		this.enemy.body.velocity.y = 0;
 		this.enemy.body.velocity.x = 0;
+
+		this.enemy.makeMovement(this.player.x, this.player.y);
+
+		if(this.game.input.activePointer.leftButton.isDown){
+			//console.log("left mouse X: " + this.game.input.activePointer.x + " " + "left mouse Y: " + this.game.input.activePointer.x);
+			if(this.enemy.checkHit(this.game.input.activePointer.x, this.game.input.activePointer.y)){
+				
+			}
+		}
 	},
 
 

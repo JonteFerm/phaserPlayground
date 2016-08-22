@@ -88,9 +88,9 @@
                  "y":416
                 }, 
                 {
-                 "gid":946,
+                 "gid":1010,
                  "height":32,
-                 "id":15,
+                 "id":10,
                  "name":"",
                  "properties":
                     {
@@ -105,7 +105,7 @@
                  "visible":true,
                  "width":32,
                  "x":127,
-                 "y":317
+                 "y":320
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -114,7 +114,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":18,
+ "nextobjectid":11,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tileheight":32,
