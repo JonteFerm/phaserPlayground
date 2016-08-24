@@ -84,8 +84,8 @@
                  "type":"playerStart",
                  "visible":true,
                  "width":32,
-                 "x":256,
-                 "y":416
+                 "x":255,
+                 "y":511
                 }, 
                 {
                  "gid":1010,
@@ -104,8 +104,8 @@
                  "type":"enemyStart",
                  "visible":true,
                  "width":32,
-                 "x":127,
-                 "y":320
+                 "x":258,
+                 "y":161
                 }],
          "opacity":1,
          "type":"objectgroup",

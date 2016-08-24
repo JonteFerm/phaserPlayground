@@ -6,6 +6,7 @@ TopDownGame.Game = function(){};
 Player = function(game, x, y){
 	Phaser.Sprite.call(this, game, x, y, 'player');
 	this.inventory = [];
+	this.reach = 1;
 
     this.animations.add('right', [0,1], 10, true);
 	this.animations.add('left', [2,3], 10, true);
@@ -41,15 +42,22 @@ Player.prototype = Object.create(Phaser.Sprite.prototype);
 Enemy = function(game, x, y, type){
 	Phaser.Sprite.call(this, game, x, y, type);
 	this.inventory = [];
+	this.perception = 5;
 
 	this.animations.add('right', [0,1], 10, true);
 	this.animations.add('left', [2,3], 10, true);
 
+	this.checkSpotPlayer = function(playerX, playerY){
+		if((this.x + this.perception*32 >= playerX || this.x - this.perception*32 >= playerX) && (this.y + this.perception*32 >= playerY || this.y - this.perception*32 >= playerY)){
+			console.log("spotted!");
+			return true;
+		}
+	}
+
 	this.makeMovement = function(playerX, playerY){
 		//console.log("enemy X: " + this.x + " " + "enemy Y: " + this.y);
 
-
-		if((this.y > playerY + 10 || this.y < playerY - 10) || (this.x > playerX + 10 || this.x < playerX - 10)){
+		if((this.y > playerY + 32 || this.y < playerY - 32) || (this.x > playerX + 32 || this.x < playerX - 32)){
 			if(playerY > this.y){
 				this.body.velocity.y = 80;
 			}else if(playerY < this.y){
@@ -66,12 +74,25 @@ Enemy = function(game, x, y, type){
 		}else{
 			this.animations.stop();
 		}
+	}
 
-		this.checkHit = function(mouseX, mouseY){
+	this.checkIsHitByPlayer = function(player, mouseX, mouseY){
+		var playerTotalReachRight = (player.x + 32) + player.reach*32;
+		var playerTotalReachLeft = player.x - player.reach*32;
+		var playerTotalReachUp = player.y - player.reach*32;
+		var playerTotalReachDown = (player.y + 32) + player.reach*32;
+
+		if(
+			((player.x <= this.x && playerTotalReachRight >= this.x) || (player.x >= this.x && playerTotalReachLeft <= this.x + 32))  && 
+			((player.y >= this.y && playerTotalReachUp <= (this.y + 32)) || (player.y <= this.y && playerTotalReachDown >= (this.y)) )
+		){
+			console.log("player is within reach");
 			if((mouseX >= this.x && mouseX < this.x + 32) && (mouseY >= this.y && mouseY < this.y + 32)){
 				return true;
 			}
 		}
+
+		return false;
 	}
 }
 
@@ -131,12 +152,15 @@ TopDownGame.Game.prototype = {
 		this.enemy.body.velocity.y = 0;
 		this.enemy.body.velocity.x = 0;
 
-		this.enemy.makeMovement(this.player.x, this.player.y);
+		if(this.enemy.checkSpotPlayer(this.player.x, this.player.y)){
+			this.enemy.makeMovement(this.player.x, this.player.y);
+		}
+		
 
 		if(this.game.input.activePointer.leftButton.isDown){
 			//console.log("left mouse X: " + this.game.input.activePointer.x + " " + "left mouse Y: " + this.game.input.activePointer.x);
-			if(this.enemy.checkHit(this.game.input.activePointer.x, this.game.input.activePointer.y)){
-				
+			if(this.enemy.checkIsHitByPlayer(this.player, this.game.input.activePointer.x, this.game.input.activePointer.y)){
+				console.log("player strikes enemy!");
 			}
 		}
 	},

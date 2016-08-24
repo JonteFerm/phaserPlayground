@@ -57,12 +57,12 @@
     <property name="sprite" value="goldenkey"/>
    </properties>
   </object>
-  <object id="6" type="playerStart" gid="1010" x="256" y="416" width="32" height="32">
+  <object id="6" type="playerStart" gid="1010" x="255" y="511" width="32" height="32">
    <properties>
     <property name="sprite" value="player"/>
    </properties>
   </object>
-  <object id="10" type="enemyStart" gid="1010" x="127" y="320" width="32" height="32">
+  <object id="10" type="enemyStart" gid="1010" x="258" y="161" width="32" height="32">
    <properties>
     <property name="sprite" value="cultist"/>
    </properties>
