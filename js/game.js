@@ -7,9 +7,19 @@ Player = function(game, x, y){
 	Phaser.Sprite.call(this, game, x, y, 'player');
 	this.inventory = [];
 	this.reach = 1;
+	this.lastDirction = "";
 
-    this.animations.add('right', [0,1], 10, true);
-	this.animations.add('left', [2,3], 10, true);
+	this.animations.add('idleRight', [0], 5, true);
+	this.animations.add('right', [1,2], 5, true);
+	this.animations.add('hitRight', [3,4], 5, true);
+	this.animations.add('idleLeft', [5], 5, true);
+	this.animations.add('left', [6,7], 5, true);
+	this.animations.add('hitLeft', [8,9], 5, true);
+	this.animations.add('idleUp', [10], 5, true);
+	this.animations.add('up', [11,12], 5, true);
+	this.animations.add('idleDown', [13], 5, true);
+	this.animations.add('down', [14,15], 5, true);
+	this.animations.add('hitDown', [16,17], 5, true);
 
 	this.wasd = {
 		up: this.game.input.keyboard.addKey(Phaser.Keyboard.W),
@@ -20,19 +30,55 @@ Player = function(game, x, y){
 
 	this.checkMovement = function(){
 		//console.log("player X: " + this.x + " " + "player Y: " + this.y);
-
-		if(this.wasd.up.isDown){
+		console.log(this.lastDirction);
+		var canAttack = true;
+		if(game.input.activePointer.leftButton.isDown){
+			if(canAttack){
+				this.hit();
+				canAttack = false;        
+				game.time.events.add(300, (function() {             canAttack = true;        }), this); 
+			}
+		}
+		else if(this.wasd.up.isDown){
 			this.body.velocity.y = -100;
+			this.animations.play("up");
+			this.lastDirection = "up";
 		}else if(this.wasd.down.isDown){
 			this.body.velocity.y = 100;
+			this.animations.play("down");
+			this.lastDirection = "down";
 		}else if(this.wasd.left.isDown){
 			this.body.velocity.x = -100;
 			this.animations.play("left");
+			this.lastDirection = "left";
 		}else if(this.wasd.right.isDown){
 			this.body.velocity.x = 100;
 			this.animations.play("right");
+			this.lastDirection = "right";
 		}else{
-			this.animations.stop();
+
+				if(this.lastDirection === "up"){
+					this.animations.play("idleUp");
+				}else if(this.lastDirection === "down"){
+					this.animations.play("idleDown");
+				
+				}else if(this.lastDirection === "left"){
+					this.animations.play("idleLeft");
+			
+				}else if(this.lastDirection === "right"){
+					this.animations.play("idleRight");
+				}
+			
+		}
+	}
+
+	this.hit = function(){
+		if(this.lastDirection === "down"){
+			this.animations.play("hitDown");
+		}else if(this.lastDirection === "left"){
+			this.animations.play("hitLeft");
+		}else if(this.lastDirection === "right"){
+			this.animations.play("hitRight");
 		}
 	}
 };
@@ -44,7 +90,7 @@ Enemy = function(game, x, y, type){
 	this.inventory = [];
 	this.perception = 5;
 
-	this.animations.add('right', [0,1], 10, true);
+    this.animations.add('right', [0,1], 10, true);
 	this.animations.add('left', [2,3], 10, true);
 
 	this.checkSpotPlayer = function(playerX, playerY){
@@ -86,7 +132,7 @@ Enemy = function(game, x, y, type){
 			((player.x <= this.x && playerTotalReachRight >= this.x) || (player.x >= this.x && playerTotalReachLeft <= this.x + 32))  && 
 			((player.y >= this.y && playerTotalReachUp <= (this.y + 32)) || (player.y <= this.y && playerTotalReachDown >= (this.y)) )
 		){
-			console.log("player is within reach");
+			//console.log("player is within reach");
 			if((mouseX >= this.x && mouseX < this.x + 32) && (mouseY >= this.y && mouseY < this.y + 32)){
 				return true;
 			}
