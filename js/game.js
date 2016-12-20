@@ -5,21 +5,27 @@ TopDownGame.Game = function(){};
 
 Player = function(game, x, y){
 	Phaser.Sprite.call(this, game, x, y, 'player');
-	this.inventory = [];
+	this.equipped = {
+		rightHand: {},
+	};
+
+	this.inventory = [
+		{name: "broadsword", type: "weapon", damage: 1, protection: 0},
+	];
 	this.reach = 1;
 	this.lastDirction = "";
 
 	this.animations.add('idleRight', [0], 5, true);
 	this.animations.add('right', [1,2], 5, true);
-	this.animations.add('hitRight', [3,4], 5, true);
+	this.animations.add('hitRight', [3], 5, true);
 	this.animations.add('idleLeft', [5], 5, true);
 	this.animations.add('left', [6,7], 5, true);
-	this.animations.add('hitLeft', [8,9], 5, true);
+	this.animations.add('hitLeft', [8], 5, true);
 	this.animations.add('idleUp', [10], 5, true);
 	this.animations.add('up', [11,12], 5, true);
 	this.animations.add('idleDown', [13], 5, true);
 	this.animations.add('down', [14,15], 5, true);
-	this.animations.add('hitDown', [16,17], 5, true);
+	this.animations.add('hitDown', [17], 5, true);
 
 	this.wasd = {
 		up: this.game.input.keyboard.addKey(Phaser.Keyboard.W),
@@ -30,7 +36,6 @@ Player = function(game, x, y){
 
 	this.checkMovement = function(){
 		//console.log("player X: " + this.x + " " + "player Y: " + this.y);
-		console.log(this.lastDirction);
 		var canAttack = true;
 		if(game.input.activePointer.leftButton.isDown){
 			if(canAttack){
@@ -57,17 +62,17 @@ Player = function(game, x, y){
 			this.lastDirection = "right";
 		}else{
 
-				if(this.lastDirection === "up"){
-					this.animations.play("idleUp");
-				}else if(this.lastDirection === "down"){
-					this.animations.play("idleDown");
-				
-				}else if(this.lastDirection === "left"){
-					this.animations.play("idleLeft");
+			if(this.lastDirection === "up"){
+				this.animations.play("idleUp");
+			}else if(this.lastDirection === "down"){
+				this.animations.play("idleDown");
 			
-				}else if(this.lastDirection === "right"){
-					this.animations.play("idleRight");
-				}
+			}else if(this.lastDirection === "left"){
+				this.animations.play("idleLeft");
+		
+			}else if(this.lastDirection === "right"){
+				this.animations.play("idleRight");
+			}
 			
 		}
 	}
@@ -89,13 +94,13 @@ Enemy = function(game, x, y, type){
 	Phaser.Sprite.call(this, game, x, y, type);
 	this.inventory = [];
 	this.perception = 5;
+	this.health = 20;
 
     this.animations.add('right', [0,1], 10, true);
 	this.animations.add('left', [2,3], 10, true);
 
 	this.checkSpotPlayer = function(playerX, playerY){
 		if((this.x + this.perception*32 >= playerX || this.x - this.perception*32 >= playerX) && (this.y + this.perception*32 >= playerY || this.y - this.perception*32 >= playerY)){
-			console.log("spotted!");
 			return true;
 		}
 	}
@@ -132,13 +137,17 @@ Enemy = function(game, x, y, type){
 			((player.x <= this.x && playerTotalReachRight >= this.x) || (player.x >= this.x && playerTotalReachLeft <= this.x + 32))  && 
 			((player.y >= this.y && playerTotalReachUp <= (this.y + 32)) || (player.y <= this.y && playerTotalReachDown >= (this.y)) )
 		){
-			//console.log("player is within reach");
 			if((mouseX >= this.x && mouseX < this.x + 32) && (mouseY >= this.y && mouseY < this.y + 32)){
 				return true;
 			}
 		}
 
 		return false;
+	}
+
+	this.takeDamage = function(attacker){
+
+
 	}
 }
 
@@ -174,19 +183,18 @@ TopDownGame.Game.prototype = {
 	    this.game.add.existing(this.player);
 	    this.game.physics.arcade.enable(this.player);
 	    this.game.camera.follow(this.player);
-	    this.player.body.immovable = true;
+	  
 
 		var enemyStart = this.findObjectsByType('enemyStart', this.map, 'objectLayer')[0];
 		this.enemy = new Enemy(this.game, enemyStart.x, enemyStart.y, 'cultist');
 		this.game.add.existing(this.enemy);
 		this.game.physics.arcade.enable(this.enemy);
 		this.enemy.body.immovable = true;
-
+	
 	},
 
 	update: function(){
 		this.game.physics.arcade.collide(this.player, this.blockLayer);
-		this.game.physics.arcade.collide(this.player, this.enemy);
 		this.game.physics.arcade.overlap(this.player, this.items, this.pickupItem, null, this);
 		this.player.body.velocity.y = 0;
 		this.player.body.velocity.x = 0;
@@ -194,7 +202,7 @@ TopDownGame.Game.prototype = {
 		this.player.checkMovement();
 
 		this.game.physics.arcade.collide(this.enemy, this.blockLayer);
-		this.game.physics.arcade.collide(this.enemy, this.player);
+		this.game.physics.arcade.collide(this.enemy, this.player, this.collissionHandlerPlayerAndEnemy, null, this);
 		this.enemy.body.velocity.y = 0;
 		this.enemy.body.velocity.x = 0;
 
@@ -207,8 +215,18 @@ TopDownGame.Game.prototype = {
 			//console.log("left mouse X: " + this.game.input.activePointer.x + " " + "left mouse Y: " + this.game.input.activePointer.x);
 			if(this.enemy.checkIsHitByPlayer(this.player, this.game.input.activePointer.x, this.game.input.activePointer.y)){
 				console.log("player strikes enemy!");
+
+				this.enemy.takeDamage();
 			}
 		}
+	},
+
+	collissionHandlerPlayerAndEnemy: function(){
+		console.log("Kollission");
+		this.player.body.velocity.x = 0;
+		this.player.body.velocity.y = 0;
+		this.enemy.body.velocity.x = 0;
+		this.enemy.body.velocity.y = 0;
 	},
 
 
