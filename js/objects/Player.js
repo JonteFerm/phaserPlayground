@@ -1,11 +1,24 @@
 Player = function(game, x, y){
 	Phaser.Sprite.call(this, game, x, y, 'player');
 	this.equipped = {
-		rightHand: {name: "broadsword", type: "weapon", damage: 3, protection: 0},
+		rightHand: {
+			name: "broadsword", 
+			type: "weapon", 
+			damage: 3, 
+			protection: 0, 
+			attackRate: 1
+		},
 	};
 
-	this.inventory = [];
+
+	this.health = 20;
+	this.primalDamage = 1;
+	this.weaponDamage = 0;
+	this.protection = 1;
+	this.attackRate = 2
 	this.reach = 1;
+
+	this.inventory = [];
 	this.lastDirction = "";
 	this.timeAttacked = 0;
 
@@ -28,9 +41,26 @@ Player = function(game, x, y){
 		right: this.game.input.keyboard.addKey(Phaser.Keyboard.D)
 	}
 
-	this.checkActions = function(enemy){
+	this.countStats = function(){
+		for (var property in this.equipped) {
+			if (this.equipped.hasOwnProperty(property)) {
+				var item = this.equipped[property];
+				
+				if(item.type === "weapon"){
+					this.weaponDamage += item.damage;
+				}else if(item.type === "primal"){
+					this.primalDamage += item.damage;
+				}
+			  
+		 	  	this.protection += item.protection;
+				this.attackRate -= item.attackRate;
+			}
+		}
+	}
+
+	this.checkActions = function(levelObjects){
 		if(game.input.activePointer.leftButton.isDown){
-			if(game.time.now - this.timeAttacked > 1000){
+			if(game.time.now - this.timeAttacked > this.attackRate*1000){
 				if(this.lastDirection === "down"){
 					this.animations.play("hitDown", 25, false);
 				}else if(this.lastDirection === "left"){
@@ -39,12 +69,18 @@ Player = function(game, x, y){
 					this.animations.play("hitRight", 25, false);
 				}
 
-				this.attack(enemy);
+				for(var i = 0; i < levelObjects.enemies.length; i++){
+					var enemy = levelObjects.enemies[i];
+
+					if(this.checkHitEnemy(enemy, game.input.activePointer.x, game.input.activePointer.y)){
+						console.log("player strikes enemy!");
+						enemy.takeDamage(this, "primary");
+					}
+				}
 
 				this.timeAttacked = game.time.now;
 			}
-		}
-		else if(this.wasd.up.isDown){
+		}else if(this.wasd.up.isDown){
 			this.body.velocity.y = -100;
 			this.animations.play("up");
 			this.lastDirection = "up";
@@ -72,13 +108,6 @@ Player = function(game, x, y){
 			}else if(this.lastDirection === "right"){
 				this.animations.play("idleRight");
 			}
-		}
-	}
-
-	this.attack = function(enemy){
-		if(this.checkHitEnemy(enemy, game.input.activePointer.x, game.input.activePointer.y)){
-			console.log("player strikes enemy!");
-			enemy.takeDamage(this, "primary");
 		}
 	}
 

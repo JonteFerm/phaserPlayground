@@ -37,26 +37,27 @@ TopDownGame.Game.prototype = {
 		this.game.physics.arcade.enable(this.enemy);
 		this.enemy.body.immovable = true;
 	
+		this.player.countStats();
+		this.enemy.countStats();
 
 	},
 
 	update: function(){
 		this.game.physics.arcade.collide(this.player, this.blockLayer);
 		this.game.physics.arcade.overlap(this.player, this.items, this.pickupItem, null, this);
+
 		this.player.body.velocity.y = 0;
 		this.player.body.velocity.x = 0;
 
-		this.player.checkActions(this.enemy);
+		this.player.checkActions({enemies: [this.enemy]});
 
 		this.game.physics.arcade.collide(this.enemy, this.blockLayer);
 		this.game.physics.arcade.collide(this.enemy, this.player, this.collissionHandlerPlayerAndEnemy, null, this);
 		this.enemy.body.velocity.y = 0;
 		this.enemy.body.velocity.x = 0;
 
-		if(this.enemy.checkSpotPlayer(this.player.x, this.player.y)){
-			this.enemy.makeMovement(this.player.x, this.player.y);
-			this.enemy.takeActions(this.player);
-		}
+
+		this.enemy.takeActions({player: this.player, opponents: [this.player]});
 	},
 
 	collissionHandlerPlayerAndEnemy: function(){

@@ -1,16 +1,39 @@
 Enemy = function(game, x, y, type){
 	Phaser.Sprite.call(this, game, x, y, type);
 	this.equipped = {
-		chest: {name: "chainmail", type: "armor", damage: 0, protection: 2},
+		chest: {name: "chainmail", type: "armor", damage: 0, protection: 1},
 	};
-	this.inventory = [];
+
+	this.health = 20;
+	this.primalDamage = 1;
+	this.weaponDamage = 0;
+	this.protection = 1;
+	this.attackRate = 1;
 	this.reach = 1;
 	this.perception = 5;
-	this.health = 20;
+
+	this.inventory = [];
 	this.timeAttacked = 0;
 
     this.animations.add('right', [0,1], 10, true);
 	this.animations.add('left', [2,3], 10, true);
+
+	this.countStats = function(){
+		for (var property in this.equipped) {
+			if (this.equipped.hasOwnProperty(property)) {
+				var item = this.equipped[property];
+				
+				if(item.type === "weapon"){
+					this.weaponDamage += item.damage;
+				}else if(item.type === "primal"){
+					this.primalDamage += item.damage;
+				}
+			  
+		 	  	this.protection += item.protection;
+				this.attackRate += item.attackRate;
+			}
+		}
+	}
 
 	this.checkSpotPlayer = function(playerX, playerY){
 		if((this.x + this.perception*32 >= playerX || this.x - this.perception*32 >= playerX) && (this.y + this.perception*32 >= playerY || this.y - this.perception*32 >= playerY)){
@@ -38,12 +61,20 @@ Enemy = function(game, x, y, type){
 		}
 	}
 
-	this.takeActions = function(opponent){
+	this.takeActions = function(levelObjects){
+		if(this.checkSpotPlayer(levelObjects.player.x, levelObjects.player.y)){
+			this.makeMovement(levelObjects.player.x, levelObjects.player.y);	
+		}
+
 		if(game.time.now - this.timeAttacked > 1000){
-			if(this.checkHitOpponent(opponent)){
-				this.attack(opponent);
-				this.timeAttacked = game.time.now;
-				console.log("enemy strikes player!");
+			for(var i = 0; i < levelObjects.opponents.length; i++){
+				var opponent = levelObjects.opponents[i];
+				if(this.checkHitOpponent(opponent)){
+					//todo: opponent.takeDamage
+
+					this.timeAttacked = game.time.now;
+					console.log("enemy strikes player!");
+				}
 			}
 		}
 	}
@@ -64,26 +95,15 @@ Enemy = function(game, x, y, type){
 		return false;
 	}
 
-	this.attack = function(){
-
-	}
-
 	this.takeDamage = function(attacker, attackType){
 		var damageDealt = 0;
-		var damageProtected = 0;
 		var damageTaken = 0;
 
 		if(attackType === "primary"){
-			damageDealt = attacker.equipped.rightHand.damage;
+			damageDealt = attacker.weaponDamage;
 		}
 
-		for (var property in this.equipped) {
-			if (this.equipped.hasOwnProperty(property)) {
-			   damageProtected += this.equipped[property].protection;
-			}
-		}
-
-		damageTaken = damageDealt - damageProtected;
+		damageTaken = damageDealt - this.protection;
 
 		console.log("enemy takes " + damageTaken + " damage.");
 
