@@ -2,163 +2,9 @@ var TopDownGame = TopDownGame || {};
 
 TopDownGame.Game = function(){};
 
-
-Player = function(game, x, y){
-	Phaser.Sprite.call(this, game, x, y, 'player');
-	this.equipped = {
-		rightHand: {},
-	};
-
-	this.inventory = [
-		{name: "broadsword", type: "weapon", damage: 1, protection: 0},
-	];
-	this.reach = 1;
-	this.lastDirction = "";
-
-	this.animations.add('idleRight', [0], 5, true);
-	this.animations.add('right', [1,2], 5, true);
-	this.animations.add('hitRight', [3], 5, true);
-	this.animations.add('idleLeft', [5], 5, true);
-	this.animations.add('left', [6,7], 5, true);
-	this.animations.add('hitLeft', [8], 5, true);
-	this.animations.add('idleUp', [10], 5, true);
-	this.animations.add('up', [11,12], 5, true);
-	this.animations.add('idleDown', [13], 5, true);
-	this.animations.add('down', [14,15], 5, true);
-	this.animations.add('hitDown', [17], 5, true);
-
-	this.wasd = {
-		up: this.game.input.keyboard.addKey(Phaser.Keyboard.W),
-		down: this.game.input.keyboard.addKey(Phaser.Keyboard.S),
-		left: this.game.input.keyboard.addKey(Phaser.Keyboard.A),
-		right: this.game.input.keyboard.addKey(Phaser.Keyboard.D)
-	}
-
-	this.checkMovement = function(){
-		//console.log("player X: " + this.x + " " + "player Y: " + this.y);
-		var canAttack = true;
-		if(game.input.activePointer.leftButton.isDown){
-			if(canAttack){
-				this.hit();
-				canAttack = false;        
-				game.time.events.add(300, (function() {             canAttack = true;        }), this); 
-			}
-		}
-		else if(this.wasd.up.isDown){
-			this.body.velocity.y = -100;
-			this.animations.play("up");
-			this.lastDirection = "up";
-		}else if(this.wasd.down.isDown){
-			this.body.velocity.y = 100;
-			this.animations.play("down");
-			this.lastDirection = "down";
-		}else if(this.wasd.left.isDown){
-			this.body.velocity.x = -100;
-			this.animations.play("left");
-			this.lastDirection = "left";
-		}else if(this.wasd.right.isDown){
-			this.body.velocity.x = 100;
-			this.animations.play("right");
-			this.lastDirection = "right";
-		}else{
-
-			if(this.lastDirection === "up"){
-				this.animations.play("idleUp");
-			}else if(this.lastDirection === "down"){
-				this.animations.play("idleDown");
-			
-			}else if(this.lastDirection === "left"){
-				this.animations.play("idleLeft");
-		
-			}else if(this.lastDirection === "right"){
-				this.animations.play("idleRight");
-			}
-			
-		}
-	}
-
-	this.hit = function(){
-		if(this.lastDirection === "down"){
-			this.animations.play("hitDown");
-		}else if(this.lastDirection === "left"){
-			this.animations.play("hitLeft");
-		}else if(this.lastDirection === "right"){
-			this.animations.play("hitRight");
-		}
-	}
-};
-
 Player.prototype = Object.create(Phaser.Sprite.prototype);
 
-Enemy = function(game, x, y, type){
-	Phaser.Sprite.call(this, game, x, y, type);
-	this.inventory = [];
-	this.perception = 5;
-	this.health = 20;
-
-    this.animations.add('right', [0,1], 10, true);
-	this.animations.add('left', [2,3], 10, true);
-
-	this.checkSpotPlayer = function(playerX, playerY){
-		if((this.x + this.perception*32 >= playerX || this.x - this.perception*32 >= playerX) && (this.y + this.perception*32 >= playerY || this.y - this.perception*32 >= playerY)){
-			return true;
-		}
-	}
-
-	this.makeMovement = function(playerX, playerY){
-		//console.log("enemy X: " + this.x + " " + "enemy Y: " + this.y);
-
-		if((this.y > playerY + 32 || this.y < playerY - 32) || (this.x > playerX + 32 || this.x < playerX - 32)){
-			if(playerY > this.y){
-				this.body.velocity.y = 80;
-			}else if(playerY < this.y){
-				this.body.velocity.y = -80;
-			}
-
-			if(playerX > this.x){
-				this.body.velocity.x = 80;
-				this.animations.play("right");
-			}else if(playerX < this.x){
-				this.body.velocity.x = -80;
-				this.animations.play("left");
-			}
-		}else{
-			this.animations.stop();
-		}
-	}
-
-	this.checkIsHitByPlayer = function(player, mouseX, mouseY){
-		var playerTotalReachRight = (player.x + 32) + player.reach*32;
-		var playerTotalReachLeft = player.x - player.reach*32;
-		var playerTotalReachUp = player.y - player.reach*32;
-		var playerTotalReachDown = (player.y + 32) + player.reach*32;
-
-		if(
-			((player.x <= this.x && playerTotalReachRight >= this.x) || (player.x >= this.x && playerTotalReachLeft <= this.x + 32))  && 
-			((player.y >= this.y && playerTotalReachUp <= (this.y + 32)) || (player.y <= this.y && playerTotalReachDown >= (this.y)) )
-		){
-			if((mouseX >= this.x && mouseX < this.x + 32) && (mouseY >= this.y && mouseY < this.y + 32)){
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	this.takeDamage = function(attacker){
-
-
-	}
-}
-
 Enemy.prototype = Object.create(Phaser.Sprite.prototype);
-
-Item = function(game, x, y, sprite){
-	Phaser.Sprite.call(this, game, x, y, sprite);
-	this.gameProperties = {
-		itemLevel: 0,
-	};
-};
 
 Item.prototype = Object.create(Phaser.Sprite.prototype);
 
@@ -191,6 +37,7 @@ TopDownGame.Game.prototype = {
 		this.game.physics.arcade.enable(this.enemy);
 		this.enemy.body.immovable = true;
 	
+
 	},
 
 	update: function(){
@@ -199,7 +46,7 @@ TopDownGame.Game.prototype = {
 		this.player.body.velocity.y = 0;
 		this.player.body.velocity.x = 0;
 
-		this.player.checkMovement();
+		this.player.checkActions(this.enemy);
 
 		this.game.physics.arcade.collide(this.enemy, this.blockLayer);
 		this.game.physics.arcade.collide(this.enemy, this.player, this.collissionHandlerPlayerAndEnemy, null, this);
@@ -208,27 +55,16 @@ TopDownGame.Game.prototype = {
 
 		if(this.enemy.checkSpotPlayer(this.player.x, this.player.y)){
 			this.enemy.makeMovement(this.player.x, this.player.y);
-		}
-		
-
-		if(this.game.input.activePointer.leftButton.isDown){
-			//console.log("left mouse X: " + this.game.input.activePointer.x + " " + "left mouse Y: " + this.game.input.activePointer.x);
-			if(this.enemy.checkIsHitByPlayer(this.player, this.game.input.activePointer.x, this.game.input.activePointer.y)){
-				console.log("player strikes enemy!");
-
-				this.enemy.takeDamage();
-			}
+			this.enemy.takeActions(this.player);
 		}
 	},
 
 	collissionHandlerPlayerAndEnemy: function(){
-		console.log("Kollission");
 		this.player.body.velocity.x = 0;
 		this.player.body.velocity.y = 0;
 		this.enemy.body.velocity.x = 0;
 		this.enemy.body.velocity.y = 0;
 	},
-
 
 	pickupItem: function(player,item){
 		player.inventory.push(item.key);
