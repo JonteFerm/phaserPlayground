@@ -10,7 +10,10 @@ TopDownGame.Preload.prototype = {
 		this.load.spritesheet('player', 'assets/dungeontest/images/playersprite2.png', 32, 32);
 		this.load.spritesheet('cultist', 'assets/dungeontest/images/cultist.png', 32, 32);
 		this.load.image('gate', 'assets/dungeontest/images/gate.png');
+		this.load.image('gateopen', 'assets/dungeontest/images/gateopen.png');
 		this.load.image('goldenkey', 'assets/dungeontest/images/goldenkey.png');
+
+		this.load.bitmapFont('font', 'assets/dungeontest/font_0.png', 'assets/dungeontest/font.xml');
 
 	},
 

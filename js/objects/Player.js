@@ -23,16 +23,20 @@ Player = function(game, x, y){
 	this.timeAttacked = 0;
 
 	this.animations.add('idleRight', [0], 5, true);
-	this.animations.add('right', [1,2], 5, true);
-	this.animations.add('hitRight', [3, 4], 5, true);
+	this.animations.add('right', [0, 1, 2], 5);
+	this.animations.add('hitRight', [0, 3, 4], 5, true);
 	this.animations.add('idleLeft', [5], 5, true);
-	this.animations.add('left', [6,7], 5, true);
-	this.animations.add('hitLeft', [8, 9], 5, true);
+	this.animations.add('left', [5, 6, 7], 5);
+	this.animations.add('hitLeft', [5, 8, 9], 5, true);
 	this.animations.add('idleUp', [10], 5, true);
-	this.animations.add('up', [11,12], 5, true);
+	this.animations.add('up', [10, 11, 12], 5);
 	this.animations.add('idleDown', [13], 5, true);
-	this.animations.add('down', [14,15], 5, true);
-	this.animations.add('hitDown', [16, 17], 5, true);
+	this.animations.add('down', [13, 14, 15], 5);
+	this.animations.add('hitDown', [13, 16, 17], 5, true);
+	
+	this.events.onAnimationComplete.add(function(){			
+		this.animations.stop(true, true);	
+	}, this);
 
 	this.wasd = {
 		up: this.game.input.keyboard.addKey(Phaser.Keyboard.W),
@@ -62,17 +66,18 @@ Player = function(game, x, y){
 		if(game.input.activePointer.leftButton.isDown){
 			if(game.time.now - this.timeAttacked > this.attackRate*1000){
 				if(this.lastDirection === "down"){
-					this.animations.play("hitDown", 25, false);
+					this.animations.play("hitDown", 5, false);
 				}else if(this.lastDirection === "left"){
-					this.animations.play("hitLeft", 25, false);
+					this.animations.play("hitLeft", 5, false);
 				}else if(this.lastDirection === "right"){
-					this.animations.play("hitRight", 25, false);
+					this.animations.play("hitRight", 5, false);
 				}
+
 
 				for(var i = 0; i < levelObjects.enemies.length; i++){
 					var enemy = levelObjects.enemies[i];
 
-					if(this.checkHitEnemy(enemy, game.input.activePointer.x, game.input.activePointer.y)){
+					if(this.checkHitEnemy(enemy, game.input.activePointer.x+game.camera.x, game.input.activePointer.y+game.camera.y)){
 						console.log("player strikes enemy!");
 						enemy.takeDamage(this, "primary");
 					}
@@ -96,18 +101,6 @@ Player = function(game, x, y){
 			this.body.velocity.x = 100;
 			this.animations.play("right");
 			this.lastDirection = "right";
-		}else{
-			if(this.lastDirection === "up"){
-				this.animations.play("idleUp");
-			}else if(this.lastDirection === "down"){
-				this.animations.play("idleDown");
-			
-			}else if(this.lastDirection === "left"){
-				this.animations.play("idleLeft");
-		
-			}else if(this.lastDirection === "right"){
-				this.animations.play("idleRight");
-			}
 		}
 	}
 
@@ -122,6 +115,7 @@ Player = function(game, x, y){
 			((this.y >= enemy.y && playerTotalReachUp <= (enemy.y + 32)) || (this.y <= enemy.y && playerTotalReachDown >= (enemy.y)) )
 		){
 			if((mouseX >= enemy.x && mouseX < enemy.x + 32) && (mouseY >= enemy.y && mouseY < enemy.y + 32)){
+
 				return true;
 			}
 		}

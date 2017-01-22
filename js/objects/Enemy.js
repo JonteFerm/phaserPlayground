@@ -4,7 +4,7 @@ Enemy = function(game, x, y, type){
 		chest: {name: "chainmail", type: "armor", damage: 0, protection: 1},
 	};
 
-	this.health = 20;
+	this.health = 1;
 	this.primalDamage = 1;
 	this.weaponDamage = 0;
 	this.protection = 1;
@@ -17,6 +17,10 @@ Enemy = function(game, x, y, type){
 
     this.animations.add('right', [0,1], 10, true);
 	this.animations.add('left', [2,3], 10, true);
+
+	this.events.onAnimationComplete.add(function(){			
+		this.animations.stop(true, true);	
+	}, this);
 
 	this.countStats = function(){
 		for (var property in this.equipped) {
@@ -56,8 +60,6 @@ Enemy = function(game, x, y, type){
 				this.body.velocity.x = -80;
 				this.animations.play("left");
 			}
-		}else{
-			this.animations.stop();
 		}
 	}
 
@@ -110,7 +112,12 @@ Enemy = function(game, x, y, type){
 		this.health -= damageTaken;
 
 		if(damageTaken > 0){
+			
 			//todo: Spela blod-animation.
+		}
+
+		if(this.health < 1){
+			this.kill();
 		}
 
 	}
