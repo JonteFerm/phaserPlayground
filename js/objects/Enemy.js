@@ -4,7 +4,7 @@ Enemy = function(game, x, y, type){
 		chest: {name: "chainmail", type: "armor", damage: 0, protection: 1},
 	};
 
-	this.health = 1;
+	this.health = 10;
 	this.primalDamage = 1;
 	this.weaponDamage = 0;
 	this.protection = 1;
@@ -73,7 +73,6 @@ Enemy = function(game, x, y, type){
 				var opponent = levelObjects.opponents[i];
 				if(this.checkHitOpponent(opponent)){
 					//todo: opponent.takeDamage
-
 					this.timeAttacked = game.time.now;
 					console.log("enemy strikes player!");
 				}
@@ -112,13 +111,23 @@ Enemy = function(game, x, y, type){
 		this.health -= damageTaken;
 
 		if(damageTaken > 0){
-			
 			//todo: Spela blod-animation.
+			game.time.events.add(1000*attacker.attackRate, function(){
+			    var dmgText = game.add.text(this.x, this.y-25, "-"+damageTaken, {
+					font: "16px Arial",
+	    			fill: "#ff0000",
+				});
+
+				var dmgTextFadeOut = game.add.tween(dmgText).to({alpha: 0}, 1500, null, true);
+
+				dmgTextFadeOut.onComplete.add(function(){
+					dmgText.destroy();
+				});
+			}, this);
 		}
 
 		if(this.health < 1){
 			this.kill();
 		}
-
 	}
 }

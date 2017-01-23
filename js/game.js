@@ -52,13 +52,7 @@ TopDownGame.Game.prototype = {
 		this.gameLog = [];
 		this.gameLogHistory = [];
 
-		this.addText("Welcome1!");
-		this.addText("Welcome!\nWelcome!");
-				this.addText("Welcome2!");
-				
-				this.addText("Welcome3!");
-				this.addText("Welcome5!");
-								this.addText("Welcome6!");
+		this.addText("Welcome!");
 	},
 
 	update: function(){
@@ -163,14 +157,11 @@ TopDownGame.Game.prototype = {
 	},
 
 	addText: function(text){
-
-
 		this.gameLog.push(this.game.add.bitmapText(10, 430, 'font',text, 16));
 		this.gameLog[this.gameLog.length-1].fixedToCamera = true;
 		this.gameLogTextHeight += this.gameLog[this.gameLog.length-1].height;
-		console.log(this.gameLogTextHeight);
+
 		if(this.gameLogTextHeight >= 93){
-			console.log("hej");
 			var firstItem = this.gameLog.shift();
 			firstItem.visible = false;
 			this.gameLogHistory.push(firstItem);
@@ -189,29 +180,8 @@ TopDownGame.Game.prototype = {
 					
 					this.gameLog[i-1].fixedToCamera = true;
 				}
-
-
 			}
 		}
-
-
-		console.log(this.gameLogHistory);
-
-		
-
-
-
-			/*
-			var logItem = this.gameLog[i];
-			console.log(logItem.y);
-			totalTextHeight += logItem.height;
-			if(i > 0){
-				logItem.y = this.gameLog[i-1].y+16;
-			}*/
 		
 	},
-
-	printLog: function(){
-
-	}
 }

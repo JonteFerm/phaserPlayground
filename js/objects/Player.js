@@ -22,6 +22,8 @@ Player = function(game, x, y){
 	this.lastDirction = "";
 	this.timeAttacked = 0;
 
+	this.attacking = false;
+
 	this.animations.add('idleRight', [0], 5, true);
 	this.animations.add('right', [0, 1, 2], 5);
 	this.animations.add('hitRight', [0, 3, 4], 5, true);
@@ -33,9 +35,11 @@ Player = function(game, x, y){
 	this.animations.add('idleDown', [13], 5, true);
 	this.animations.add('down', [13, 14, 15], 5);
 	this.animations.add('hitDown', [13, 16, 17], 5, true);
+
 	
 	this.events.onAnimationComplete.add(function(){			
 		this.animations.stop(true, true);	
+
 	}, this);
 
 	this.wasd = {
@@ -78,7 +82,6 @@ Player = function(game, x, y){
 					var enemy = levelObjects.enemies[i];
 
 					if(this.checkHitEnemy(enemy, game.input.activePointer.x+game.camera.x, game.input.activePointer.y+game.camera.y)){
-						console.log("player strikes enemy!");
 						enemy.takeDamage(this, "primary");
 					}
 				}
